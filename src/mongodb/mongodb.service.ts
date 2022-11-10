@@ -14,7 +14,8 @@ export class MongoDBService {
   }
 
   async findAll(): Promise<Task[]> {
-    return this.taskModel.find().exec();
+    const result = this.taskModel.find().exec();
+    return result;
   }
 
   async findOne(id: string): Promise<Task[]> {
