@@ -1,25 +1,47 @@
+import { INestApplication, InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
+import { AppService } from 'src/app.service';
+import * as request from 'supertest';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication;
+describe('AppController (Integration Testing)', () => {
+  let apps: INestApplication;
+  let healthCheck: AppService;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    const getModule: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    apps = getModule.createNestApplication();
+    healthCheck = getModule.get<AppService>(AppService);
+    await apps.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect('OK');
+  describe('app controller should return "OK"', () => {
+    test('should return OK & 200', async () => {
+      const mockJest = jest
+        .spyOn(healthCheck, 'checkHealth')
+        .mockImplementation(() => 'OK');
+      const result = await request(apps.getHttpServer()).get('/');
+      expect(mockJest).toBeCalled();
+      expect(result.status).toBe(200);
+      expect(result.text).toBe('OK');
+    });
+    test('should return Internal Server Error or 500', async () => {
+      const mockJest = jest
+        .spyOn(healthCheck, 'checkHealth')
+        .mockImplementation(() => {
+          throw new InternalServerErrorException();
+        });
+      const result = await request(apps.getHttpServer()).get('/');
+      expect(mockJest).toBeCalled();
+      expect(result.status).toBe(500);
+      expect(result.body.message).toEqual('Internal Server Error');
+    });
   });
 
   afterAll(async () => {
-    await app.close();
+    await apps.close();
   });
 });
