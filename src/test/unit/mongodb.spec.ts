@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { MongoDBModule } from '../mongodb/mongodb.module';
+import { MongoDBModule } from 'src/mongodb/mongodb.module';
 
 describe('CRUD Operations with MongoDB', () => {
   let app: INestApplication;
   let mockMongoController: {
-    id: 101;
-    name: 'go to shopping';
-    status: false;
-    date: '2022-01-10';
+    findAll: () => {
+      id: 101;
+      name: 'go to shopping';
+      status: false;
+      date: '2022-01-10';
+    };
   };
 
   beforeAll(async () => {
@@ -27,7 +29,7 @@ describe('CRUD Operations with MongoDB', () => {
   it('/mongodb GET Tasks', () => {
     const result = request(app.getHttpServer()).get('/mongodb');
     result.expect(200);
-    result.expect(200);
+    result.expect({ data: 'data' });
   });
 
   afterAll(async () => {
