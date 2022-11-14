@@ -7,10 +7,10 @@ Before installation:
 ## Installation
 
 ```bash
-- `brew install node`
-- `brew tap mongodb/brew`
-- `brew install mongodb-community`
-- `npm install`
+- brew install node
+- brew tap mongodb/brew
+- brew install mongodb-community
+- npm install
 ```
 
 ## Running the app
