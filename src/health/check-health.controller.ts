@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import {
   HealthCheck,
+  HealthCheckResult,
   HealthCheckService,
   HttpHealthIndicator,
 } from '@nestjs/terminus';
@@ -16,7 +17,7 @@ export class CheckHealthController {
 
   @Get('one')
   @HealthCheck()
-  getHelth() {
+  getHelth(): Promise<HealthCheckResult> {
     return this.health.check([
       () => this.http.pingCheck('docs', 'http://localhost:3000/docs'),
     ]);
@@ -24,23 +25,31 @@ export class CheckHealthController {
 
   @Get('specific-response')
   @HealthCheck()
-  checkSpecificResponse() {
-    return this.health.check([
-      () =>
-        this.http.responseCheck(
-          'specific-response',
-          'http://localhost:3000/docs',
-          (res) => res.status == 201,
-        ),
-    ]);
+  async checkSpecificResponse() {
+    const result = this.health
+      .check([
+        () =>
+          this.http.responseCheck(
+            'specific-response',
+            'http://localhost:3000/docs',
+            (res) => res.status == 200,
+          ),
+        () =>
+          this.http.responseCheck(
+            'docs',
+            'https://bff.dev.medlify.com/docs',
+            (res) => res.status !== 404,
+          ),
+      ])
+      .then((res) => console.log(res));
+    return result;
   }
 
   @Get('custom')
   @HealthCheck()
   checkMyHealth() {
     return this.health.check([
-      // () => this.dogHealthIndicator.isHealthy('goodboy'),
-      () => this.taskHealthIndicator.isHealthy('tassk'),
+      () => this.taskHealthIndicator.isHealthy('task'),
     ]);
   }
 }
