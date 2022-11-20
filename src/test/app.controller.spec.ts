@@ -1,7 +1,7 @@
 import { INestApplication, InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
-import { AppService } from 'src/app.service';
+import { AppService } from 'src/health/check-health.service';
 import * as request from 'supertest';
 
 describe('AppController (Integration Testing)', () => {
