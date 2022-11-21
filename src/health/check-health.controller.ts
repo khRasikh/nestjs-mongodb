@@ -37,7 +37,7 @@ export class CheckHealthController {
         () =>
           this.http.responseCheck(
             'docs',
-            'https://bff.dev.medlify.com/docs',
+            'http://localhost:3000/docs',
             (res) => res.status !== 404,
           ),
       ])
