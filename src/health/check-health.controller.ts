@@ -1,9 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Logger } from '@nestjs/common';
 import {
   HealthCheck,
   HealthCheckResult,
   HealthCheckService,
   HttpHealthIndicator,
+  MongooseHealthIndicator,
 } from '@nestjs/terminus';
 import { TaskHealthIndicator } from './task';
 
@@ -13,6 +14,7 @@ export class CheckHealthController {
     private readonly health: HealthCheckService,
     private readonly http: HttpHealthIndicator,
     private readonly taskHealthIndicator: TaskHealthIndicator,
+    private readonly mongooseHealth: MongooseHealthIndicator,
   ) {}
 
   @Get('one')
@@ -40,8 +42,12 @@ export class CheckHealthController {
             'https://bff.dev.medlify.com/docs',
             (res) => res.status !== 404,
           ),
+        () => this.mongooseHealth.pingCheck('mongoDB'),
       ])
-      .then((res) => console.log(res));
+      .then((res) => Logger.log(res.status))
+      .catch((err) => {
+        Logger.error(err);
+      });
     return result;
   }
 
